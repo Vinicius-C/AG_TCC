@@ -14,6 +14,11 @@ class ReadFromCST:
         = dieletric_s12 = dieletric_s21 = dieletric_s22 = resistive_fss_s11 \
         = resistive_fss_s12 = resistive_fss_s21 = resistive_fss_s22 = None
 
+    # Usando Matriz ABCD
+    '''
+    def __init__(self) -> None:               
+        self.ler_all_s()
+
     @staticmethod
     def ler_s_parameters(name):
         xlsx_file = Path('ExportsZ', name)
@@ -52,6 +57,7 @@ class ReadFromCST:
 
     @staticmethod
     def get_a(s):
+        import ipdb; ipdb.set_trace()
         s11, s12, s21, s22 = s[0].astype(complex), \
                              s[1].astype(complex), \
                              s[2].astype(complex), \
@@ -102,31 +108,46 @@ class ReadFromCST:
         d = numerador / denominador
         return d
 
-    @staticmethod
-    def reshape_2(x):
-        return x.reshape(2, -1)
-
-    def reshape_s(self, s):
-        return np.apply_along_axis(self.reshape_2,
-                                   axis=1,
-                                   arr=np.array(s).transpose())
-
-    def s_to_abcd(self, s, eita=None):
-
-        import ipdb; ipdb.set_trace()
+    def s_to_abcd(self, s):
         a = self.get_a(s)
         b = self.get_b(s)
         c = self.get_c(s)
         d = self.get_d(s)
 
-        if eita is None:
-            a = np.ones(len(s[0]))
-            b = np.zeros(len(s[0]))
-            d = np.ones(len(s[0]))
         abcd = np.apply_along_axis(self.reshape_2,
                                    axis=1,
                                    arr=np.array([a, b, c, d]).transpose())
         return abcd
+    
+    @staticmethod
+    def abcd_to_r_t(abcd):
+        z0 = FSS.z0
+        result = [None, None]
+
+        for matrix in abcd:
+            a = matrix[0][0]
+            b = matrix[0][1]
+            c = matrix[1][0]
+            d = matrix[1][1]
+
+            denominador = a + b / z0 + c * z0 + d
+
+            s11 = (a + b / z0 - c * z0 - d) / denominador
+            s12 = 2 * (a * d - b * c) / denominador
+
+            result = np.vstack((result, [s11, s12]))
+
+        return np.delete(result, 0, 0)
+    '''
+
+    @staticmethod
+    def reshape_2(x):
+        return x.reshape(2, -1)
+        
+    def reshape_s(self, s):
+        return np.apply_along_axis(self.reshape_2,
+                                   axis=1,
+                                   arr=np.array(s).transpose())
 
     @staticmethod
     def s_cascade(x, y):
@@ -154,26 +175,6 @@ class ReadFromCST:
         return result
 
     @staticmethod
-    def abcd_to_r_t(abcd):
-        z0 = FSS.z0
-        result = [None, None]
-
-        for matrix in abcd:
-            a = matrix[0][0]
-            b = matrix[0][1]
-            c = matrix[1][0]
-            d = matrix[1][1]
-
-            denominador = a + b / z0 + c * z0 + d
-
-            s11 = (a + b / z0 - c * z0 - d) / denominador
-            s12 = 2 * (a * d - b * c) / denominador
-
-            result = np.vstack((result, [s11, s12]))
-
-        return np.delete(result, 0, 0)
-
-    @staticmethod
     def dissociate(array):
         result1 = []
         result2 = []
@@ -189,11 +190,8 @@ class ReadFromCST:
         return np.apply_along_axis(lambda x: math.sqrt(10 ** (x / 10)),
                                    axis=1,
                                    arr=s)
-
-    def plotar_arranjo(self):
-        
-        self.ler_all_s()
-
+    '''
+    def plotar_ABCD(self): 
         pass_band_abcd = self.s_to_abcd(np.array([self.pass_band_s11,
                                                   self.pass_band_s12,
                                                   self.pass_band_s21,
@@ -205,7 +203,7 @@ class ReadFromCST:
                                                   self.dieletric_s21,
                                                   self.dieletric_s22]
                                                  )
-                                        , eita=True)
+                                        )
         resistive_fss_abcd = self.s_to_abcd(np.array([self.resistive_fss_s11,
                                                       self.resistive_fss_s12,
                                                       self.resistive_fss_s21,
@@ -252,13 +250,13 @@ class ReadFromCST:
                     xvline=faixa_f_antena,
                     title="A"
                     )
+    '''
 
-    def plotar_teste(self, s, tamanho):
-
-        self.pass_band_s11 = self.pass_band_s12 = self.pass_band_s21 = self.pass_band_s22 =\
-            self.dieletric_s11 = self.dieletric_s12 = self.dieletric_s21 = self.dieletric_s22 =\
-            self.resistive_fss_s11 = self.resistive_fss_s12 = self.resistive_fss_s21 =\
-            self.resistive_fss_s22 = s*np.ones(tamanho)
+    def plotar_S(self, s, tamanho):   
+        #self.pass_band_s11 = self.pass_band_s12 = self.pass_band_s21 = self.pass_band_s22 =\
+        #    self.dieletric_s11 = self.dieletric_s12 = self.dieletric_s21 = self.dieletric_s22 =\
+        #    self.resistive_fss_s11 = self.resistive_fss_s12 = self.resistive_fss_s21 =\
+        #    self.resistive_fss_s22 = s*np.ones(tamanho)
 
         pass_band_s = self.reshape_s([self.pass_band_s11,
                                       self.pass_band_s12,
@@ -276,27 +274,40 @@ class ReadFromCST:
                                       self.resistive_fss_s22]
                                      )
 
-        cascade = self.s_cascade(pass_band_s, dieletric_s)
-        cascade = self.s_cascade(np.sqrt(cascade), resistive_s)
+        cascade = self.s_cascade(np.abs(resistive_s), np.abs(dieletric_s))
+        cascade = self.s_cascade(np.abs(cascade), np.abs(pass_band_s))
 
         r_t = np.apply_along_axis(lambda x: x[0], 1, cascade)
-        r_t = self.dissociate(r_t)
+        r_t = np.array(self.dissociate(r_t))
 
-        show = Plots(linspace=np.linspace(1, 25, len(r_t[1])))
+        r2 = r_t[0]
+        t2 = r_t[1]
+        
+        rdb = 10 * np.log10(r2.astype("float"))
+        tdb = 10 * np.log10(t2.astype("float"))
+        a = -10 * np.log10(r2.astype("float") + t2.astype("float"))
 
-        show.plotar(r_t[0],
+        show = Plots(linspace=np.linspace(1, 25, len(r2)))
+
+        show.plotar(rdb,
                     x="Frequency (GHz)",
                     y="S11(dB)",
                     title="S"
                     )
         
-        show.plotar(r_t[1],
+        show.plotar(tdb,
                     x="Frequency (GHz)",
                     y="S12(dB)",
                     title="S"
                     )
+        
+        show.plotar(a,
+                    x="Frequency (GHz)",
+                    y="A(dB)",
+                    title="A"
+                    )
 
 
 from_cst = ReadFromCST()
-from_cst.plotar_arranjo()
-# from_cst.plotar_teste(0.70710678118654752440084436210485, 100)
+#from_cst.plotar_ABCD()
+from_cst.plotar_S(0.70710678118654752440084436210485, 100)

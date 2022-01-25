@@ -53,5 +53,5 @@ class Substrato:
         beta = self.beta(frequencia, angulo_incidencia)
         return math.pi / (2 * beta)
 
-    def frequencia_salisbury(self, largura, angulo_incidencia):
-        return self.v / (4 * largura)
+    def frequencia_salisbury(self):
+        return self.get_v() / (4 * self.l)

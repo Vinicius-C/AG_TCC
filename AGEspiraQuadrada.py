@@ -62,7 +62,7 @@ class AGEspiraQuadrada(AG):
             frequencia = self.frequencia_hz(passo=i)
 
             z = espira_quadrada.calculo_impedancia(frequencia, self.angulo_incidencia)
-            zfss = z[0] + 1j * z[1]
+            zfss = z["r"] + 1j * z["x"]
             abcd = [
                     [1, 0],
                     [1 / zfss, 1]
@@ -78,11 +78,14 @@ class AGEspiraQuadrada(AG):
 
         if self.otimizacao == "r":
             diferenca = curva_normalizada - self.curva_referencia_r
+            c = self.dados["SENSIBILIDADE_FAIXA_ESPIRA"]
+            diferenca = np.array(diferenca) * (c / (c - 1) - np.array(self.curva_referencia_r))
         elif self.otimizacao == "t":
             diferenca = curva_normalizada - self.curva_referencia_t
         elif self.otimizacao == "a":
             diferenca = curva_normalizada - self.curva_referencia_a
 
+        
         pico = abs(np.min(curva))
         f = np.sum(np.square(diferenca)) * ((pico + 10) / pico)
 

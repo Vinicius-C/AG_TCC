@@ -18,10 +18,9 @@ class AGArranjo(AG):
         self.passos = dados["PASSOS_ARRANJO"]
         self.otimizacao = dados["OTIMIZACAO_ARRANJO"]
         self.max_geracoes = dados["MAX_GERACOES_ARRANJO"]
-        self.max_repeticao = dados["MAX_REPETICAO_FITNESS_ARRANJO"]
+        self.max_repeticao_fitness = dados["MAX_REPETICAO_FITNESS_ARRANJO"]
 
         self.busca_dieletrico = dados["BUSCA_DIELETRICO"]
-        self.busca_espira = dados["BUSCA_ESPIRA"]
 
         self.er = dados["ER"]
         self.ur = dados["UR"]
@@ -30,7 +29,6 @@ class AGArranjo(AG):
         # Colocando intervalo correto nos pesos (Onde era nulo)
         self.pesos_absorcao[0][0] = self.intervalo_curva[0]
         self.pesos_absorcao[3][1] = self.intervalo_curva[1]
-        self.pesos_absorcao[4][1] = self.intervalo_curva[1]
         self.set_pesos()
 
         self.set_passos_antena(self.passos)
@@ -141,12 +139,12 @@ class AGArranjo(AG):
             return {
                 "fitness": 9999999
             }
+            
         for i in range(self.passos):
             frequencia = self.frequencia_hz(passo=i)
 
             z = espira_quadrada.calculo_impedancia(frequencia, self.angulo_incidencia)
-
-            zfss = z[0] + 1j * z[1]
+            zfss = z["r"] + 1j * z["x"]
             abcd_fss = [
                 [1, 0],
                 [1 / zfss, 1]
@@ -154,39 +152,43 @@ class AGArranjo(AG):
 
             beta = substrato.beta(frequencia, self.angulo_incidencia)
             zd = substrato.zm(self.modo, frequencia, self.angulo_incidencia)
-
             abcd_substrato = [
                 [math.cos(beta * l), zd * math.sin(beta * l) * 1j],
                 [1j * math.sin(beta * l) / zd, math.cos(beta * l)]
             ]
 
-            abcd = np.dot(abcd_fss, abcd_substrato)
-
+            abcd_passa_faixa = [
+                [1, 0],
+                [0, 1]
+            ]
             # Se houver espira quadrada passa-faixa selecionada anteriormente
             if self.espira_passa_faixa is not None:
-                x = self.espira_passa_faixa
-                espira_passa_faixa = EspiraQuadrada(x.d, x.w, x.p, x.e)
                 # Grating Lobe
-                if x.p * (1 + math.sin(self.angulo_incidencia)) > FSS.vluz / (self.intervalo_curva[1] * 10 ** 9):
+                if self.espira_passa_faixa.p * (1 + math.sin(self.angulo_incidencia)) >\
+                        FSS.vluz / (self.intervalo_curva[1] * 10 ** 9):
                     return {
                         "fitness": 9999999
                     }
-                z2 = espira_passa_faixa.calculo_impedancia(frequencia, self.angulo_incidencia)
-                zfss2 = z2[0] + 1j * z2[1]
+                z2 = self.espira_passa_faixa.calculo_impedancia(frequencia, self.angulo_incidencia)
+                zfss2 = z2["r"] + 1j * z2["x"]
                 abcd_passa_faixa = [
                     [1, 0],
                     [1 / zfss2, 1]
                 ]
 
-                abcd = np.dot(abcd, abcd_passa_faixa)
+            abcd = np.dot(abcd_fss, abcd_substrato)
+            abcd = np.dot(abcd, abcd_passa_faixa)
+            # Recieve Mode
+            # abcd = np.dot(abcd_passa_faixa, abcd_substrato)
+            # abcd = np.dot(abcd, abcd_fss)
 
             x2 = AGUtil.calculo_db(self.otimizacao, abcd, espira_quadrada.z0)
             curva = np.append(curva, 10 * math.log(x2, 10))
-            zfssr = np.append(zfssr, z[0])
-            zfssi = np.append(zfssi, z[1])
+            zfssr = np.append(zfssr, z["r"])
+            zfssi = np.append(zfssi, z["x"])
             zdieletrico = zd * math.tan(beta * l)
             list_zsubstrato = np.append(list_zsubstrato, zdieletrico)
-            zr = np.append(zr, (1j * zdieletrico * (z[0] + 1j * z[1]) / (1j * zdieletrico + (z[0] + 1j * z[1]))))
+            zr = np.append(zr, (1j * zdieletrico * (z["r"] + 1j * z["x"]) / (1j * zdieletrico + (z["r"] + 1j * z["x"]))))
 
         diferenca = []
         curva_normalizada = []
@@ -207,10 +209,16 @@ class AGArranjo(AG):
             diferenca = curva_normalizada - self.curva_referencia_a
             diferenca = np.multiply(diferenca, self.pesos)
 
-            x = abs(np.max(curva))
+            x = abs(np.max(curva)) ** 2
             f = np.sum(np.square(diferenca)) * (1 / x ** 2)
-            g = abs(espira_quadrada.calculo_impedancia(15 * 10 ** 9, self.angulo_incidencia)[1])
-            f *= (g ** 2 / 1000) + 1
+            # Reatância na Salisbury Screen
+            g = abs(
+                espira_quadrada.calculo_impedancia(
+                    substrato.frequencia_salisbury(),
+                    self.angulo_incidencia
+                )["x"]
+            )
+            f *= (g ** 2 / 20000) + 1
 
         return {
             "fitness": f,

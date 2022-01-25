@@ -29,4 +29,9 @@ class EspiraQuadrada(FSS):
         if bc == 0:
             bc = 0.000001
 
-        return [self.r, xl-1/bc, xl, bc]
+        return {
+            "r": self.r,
+            "x": xl-1/bc,
+            "xl": xl,
+            "bc": bc
+        }

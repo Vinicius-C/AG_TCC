@@ -46,13 +46,13 @@ class AGManager:
         plt.close()
 
         # Mostrar melhor
-        index_index_menor = 0
+        index_menor = 0
         for i in range(ag.tamanho_geracao):
             if ag.solve_espira_quadrada(ag.geracao[i])["fitness"] <\
-                    ag.solve_espira_quadrada(ag.geracao[index_index_menor])["fitness"]:
-                index_index_menor = i
+                    ag.solve_espira_quadrada(ag.geracao[index_menor])["fitness"]:
+                index_menor = i
 
-        espira_quadrada_otima = ag.geracao[index_index_menor]
+        espira_quadrada_otima = ag.geracao[index_menor]
 
         print("A melhor espira quadrada encontrada foi: ")
         print("d: " + str(espira_quadrada_otima.d))
@@ -120,7 +120,7 @@ class AGManager:
                 count_mesmo_fitness = 0
                 fitness = x["fitness"]
                 
-            if count_mesmo_fitness >= ag.max_geracoes:
+            if count_mesmo_fitness >= ag.max_repeticao_fitness:
                 print("Parada por repetição de fitness: " + str(j))
                 break
 
