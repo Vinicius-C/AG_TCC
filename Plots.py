@@ -40,7 +40,7 @@ class Plots:
             x="Frequency (GHz)",
             y=ag.otimizacao.upper() + "(dB)",
             xvline=ag.faixa_f_antena,
-            title="Melhor Arranjo"
+            title="Melhor Arranjo, Fitness: {}".format(dados["fitness"])
         )
 
         self.plotar(
@@ -59,18 +59,50 @@ class Plots:
             title="Melhor Arranjo"
         )
 
-        self.plotar(
-            [
-                dados["curva normalizada"],
-                ag.curva_referencia_a,
-                dados["diferenca ao quadrado"]
-            ],
-            x="Frequency (GHz)",
-            y="A Normalizado",
-            xvline=ag.faixa_f_antena,
-            title="Normalizados",
-            many=True
-        )
+        metodo = ag.dados["METODO_FITNESS_ARRANJO"]
+
+        if metodo == "compare_ideal":
+            self.plotar(
+                [
+                    dados["curva normalizada"],
+                    ag.curva_referencia_a,
+                    dados["diferenca ao quadrado"]
+                ],
+                x="Frequency (GHz)",
+                y="A Normalizado",
+                xvline=ag.faixa_f_antena,
+                title="Normalizados",
+                many=True
+            )
+
+        elif metodo == "sum_influence":
+            self.plotar(
+                [
+                    dados["curva normalizada"],
+                    ag.curva_referencia_a,
+                    dados["curva_fitness"]
+                ],
+                x="Frequency (GHz)",
+                y="A Normalizado",
+                xvline=ag.faixa_f_antena,
+                title="Normalizados",
+                many=True
+            )
+
+        elif metodo == "compare_curve":
+            self.plotar(
+                [
+                    dados["curva normalizada"],
+                    ag.curva_referencia_a,
+                    dados["curva_fitness"]
+                ],
+                x="Frequency (GHz)",
+                y="A Normalizado",
+                xvline=ag.faixa_f_antena,
+                title="Normalizados",
+                many=True
+            )
+
 
         self.plotar(
             dados["zfssr"],

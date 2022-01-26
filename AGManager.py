@@ -1,8 +1,11 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
+
 from AGEspiraQuadrada import AGEspiraQuadrada
 from AGArranjo import AGArranjo
+
+from Individuo import Individuo
 from Plots import Plots
 
 
@@ -90,7 +93,20 @@ class AGManager:
     def otimizar_arranjo(espira_quadrada_otima):
         espira_passa_faixa = espira_quadrada_otima
 
-        ag = AGArranjo()
+        ag_artigo = AGArranjo()
+        fss_artigo = Individuo()
+        fss_artigo.set_arranjo(
+            w=0.011 * 3 / 16,
+            d=0.011 * 14 / 16,
+            p=0.011,
+            r=260,
+            l=0.005,
+            e=1.01 * 8.85418 * (10 ** -12),
+            u=1.2566 * (10 ** -6)
+        )
+        resultado_artigo = ag_artigo.solve_arranjo(fss_artigo)
+
+        ag = AGArranjo(referencia=resultado_artigo["curva"])
         ag.espira_passa_faixa = espira_passa_faixa
         ag.set_geracao_arranjo()
 
@@ -100,23 +116,27 @@ class AGManager:
         count_mesmo_fitness = 0
 
         for j in range(ag.max_geracoes):
-            x = ag.solve_arranjo(
-                ag.nova_geracao(
+            novo = ag.nova_geracao(
                     ag.solve_arranjo,
                     ag.crossover_arranjo
                 )
-            )
+            x = ag.solve_arranjo(novo)
 
             if fitness == x["fitness"]:
                 count_mesmo_fitness += 1
             else:
                 show.plotar(
-                    x["curva"],
+                    [
+                        x["curva"],
+                        resultado_artigo["curva"]
+                    ],
                     x="Frequency (GHz)",
                     y=ag.otimizacao.upper() + "(dB) [Novo Fitness]",
                     xvline=ag.faixa_f_antena,
-                    title="S"
+                    title="S, Fitness: {}".format(x["fitness"]),
+                    many=True
                 )
+                print(novo.r)
                 count_mesmo_fitness = 0
                 fitness = x["fitness"]
                 

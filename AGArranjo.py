@@ -11,9 +11,14 @@ from Substrato import Substrato
 
 class AGArranjo(AG):
     # Criar geração inicial do arranjo
-    def __init__(self):
+    def __init__(self, referencia=None):
         super().__init__()
         dados = self.dados
+
+        if referencia is not None:
+            self.referencia = referencia
+        else:
+            self.dados["METODO_FITNESS_ARRANJO"] = "sum_influence"
 
         self.passos = dados["PASSOS_ARRANJO"]
         self.otimizacao = dados["OTIMIZACAO_ARRANJO"]
@@ -45,10 +50,12 @@ class AGArranjo(AG):
 
         # Intervalo: intervalo_salisbury[0]-intervalo_salisbury[1] (Definido pelo usuário)
         self.l_inf = substrato.largura_salisbury(
-            self.dados["INTERVALO_SALISBURY"][0] * 10 ** 9, self.angulo_incidencia
+            self.dados["INTERVALO_SALISBURY"][0] * 10 ** 9,
+            self.angulo_incidencia
         )
         self.l_sup = substrato.largura_salisbury(
-            self.dados["INTERVALO_SALISBURY"][1] * 10 ** 9, self.angulo_incidencia
+            self.dados["INTERVALO_SALISBURY"][1] * 10 ** 9,
+            self.angulo_incidencia
         )
 
     # Setar a curva com pesos em cada faixa de frequência para fitness de absorção
@@ -105,7 +112,7 @@ class AGArranjo(AG):
         w = AGUtil.gerar_no_intervalo(self.dados["INTERVALO_W/D_PRIMEIRO_ARRANJO"]) * d
 
         # Rop = Zm^2*tan(km*d)^2/Z0
-        frequencia = (10 ** 9) * 9
+        frequencia = (10 ** 9) * 6.5
         dieletrico = Substrato(l, e, u)
         zm = dieletrico.get_impedancia(self.modo, frequencia, self.angulo_incidencia)
         r = (zm ** 2) / FSS.z0
@@ -116,7 +123,7 @@ class AGArranjo(AG):
         individuo.set_arranjo(d, w, p, r, l, e, u)
         return individuo
 
-    def solve_arranjo(self, individuo):
+    def solve_arranjo(self, individuo, to_compare=None):
         curva = []
         zfssr = []
         zfssi = []
@@ -164,7 +171,7 @@ class AGArranjo(AG):
                 [9999999, 1]
             ]
             # Se houver espira quadrada passa-faixa selecionada anteriormente
-            if self.espira_passa_faixa is not None:
+            if not self.dados['UTILIZAR_GROUND'] and (self.espira_passa_faixa is not None):
                 # Grating Lobe
                 if self.espira_passa_faixa.p * (1 + math.sin(self.angulo_incidencia)) >\
                         FSS.vluz / (self.intervalo_curva[1] * 10 ** 9):
@@ -185,7 +192,7 @@ class AGArranjo(AG):
             #abcd = np.dot(abcd, abcd_fss)
 
             a2 = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
-            curva = np.append(curva, 10 * math.log(x2, 10))
+            curva = np.append(curva, 10 * math.log(a2, 10))
             x11 = AGUtil.calculo_s2("r", abcd, espira_quadrada.z0)
             s11 = np.append(s11, 10 * math.log(x11, 10))
             x12 = AGUtil.calculo_s2("t", abcd, espira_quadrada.z0)
@@ -213,12 +220,14 @@ class AGArranjo(AG):
             f = np.sum(np.square(diferenca))
         elif self.otimizacao == "a":
             curva_normalizada = np.true_divide(curva, max(np.abs(curva)))
+
+        metodo = self.dados["METODO_FITNESS_ARRANJO"]
+
+        if metodo == "compare_ideal":
             diferenca = curva_normalizada - self.curva_referencia_a
             diferenca = np.multiply(diferenca, self.pesos)
-
             x = abs(np.max(curva))
             f = np.sum(np.square(diferenca)) * (1 / x)
-            # Reatância na Salisbury Screen
             g = abs(
                 espira_quadrada.calculo_impedancia(
                     substrato.frequencia_salisbury(),
@@ -226,6 +235,34 @@ class AGArranjo(AG):
                 )["x"]
             )
             f *= (g ** 2 / 20000) + 1
+
+        elif metodo in "sum_influence":
+            for i in range(self.passos):
+                if self.curva_referencia_a[i] == 1:
+                    peso = self.pesos[i]
+                    peso = peso * (curva[i]/ 30)
+                    x = self.pesos[i] * (1 / curva[i])
+                else:
+                    x = self.pesos[i] * curva[i]
+
+                f += x
+                curva_fitness.append(x)
+
+        elif metodo == "compare_curve" or True:
+            for i in range(self.passos):
+                peso = self.pesos[i]
+
+                # Evitar picos que tem muita influencia
+                valor = curva[i] if curva[i] < 25 else 25
+                diferenca = np.append(diferenca, valor - self.referencia[i])
+
+                if diferenca[i] > 0:
+                    x = -1 * self.pesos[i] * diferenca[i]
+                else:
+                    x = self.pesos[i] * abs(diferenca[i]) * 5
+
+                f += x
+                curva_fitness.append(x)
 
         return {
             "fitness": f,
@@ -239,7 +276,7 @@ class AGArranjo(AG):
             "zri": zr.imag,
             "curva_fitness": curva_fitness,
             "s11": s11,
-            "s12": s12,
+            "s12": s12
         }
 
     def crossover_arranjo(self, macho, femea):

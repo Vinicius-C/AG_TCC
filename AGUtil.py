@@ -63,6 +63,7 @@ class AGUtil:
         self.curva_referencia_t = []
         # Array contendo a curva com funcionamento ideal de reflexão
         self.curva_referencia_r = []
+
         self.curva_referencia_r = np.append(self.curva_referencia_r,
                                             np.ones(self.passo_comeco_banda))
         self.curva_referencia_t = np.append(self.curva_referencia_t,
@@ -151,7 +152,7 @@ class AGUtil:
 
         beta = random.random()
 
-        return intervalo[0]*(1-beta) + intervalo[1]*beta
+        return intervalo[0] * (1-beta) + intervalo[1] * beta
 
     def frequencia_hz(self, passo):
         return (10 ** 9) * (self.intervalo_curva[0] + (passo / self.passos) *
@@ -160,3 +161,11 @@ class AGUtil:
     @staticmethod
     def gerar_no_intervalo(intervalo):
         return intervalo[0] + (intervalo[1] - intervalo[0]) * random.random()
+
+    def get_passa_faixa(self, individuo):
+        return EspiraQuadrada(
+            p = individuo.p,
+            d = individuo.d,
+            w = individuo.w,
+            r = individuo.r
+        )

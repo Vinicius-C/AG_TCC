@@ -118,15 +118,14 @@ class AG(AGUtil):
         # Ultrapassagem do crossover, assim será possivel o filho ter um valor fora do intervalo dos pais
         n = n
 
-        # Limites de p: [1e-4, 9999]
+        # Limites de p: [1e-4, 1]
         p = AGUtil.combinar_real(n, [1e-4, 1], macho.p, femea.p)
-        # Limites de d: [1e-4, 0.9p]
-        d = AGUtil.combinar_real(n, [1e-4, 0.9 * p], macho.d, femea.d)
+        # Limites de d: [1e-4, 0.95p]
+        d = AGUtil.combinar_real(n, [1e-4, 0.95 * p], macho.d, femea.d)
         # Limites de w: [1e-4, d/2]
         w = AGUtil.combinar_real(n, [1e-4, d / 2], macho.w, femea.w)
         # Limites de r: [0, 9999]
         r = AGUtil.combinar_real(n, [0, 999], macho.r, femea.r)
-        # Limites de p: [0, 0.02]
 
         resultado = Individuo()
         resultado.set_espira_quadrada(d, w, p, r)
