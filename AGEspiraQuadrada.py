@@ -47,6 +47,11 @@ class AGEspiraQuadrada(AG):
         z_pass_band_r = []
         z_pass_band_i = []
 
+        s1 = []
+        s2 = []
+        s3 = []
+        s4 = []
+
         d = individuo.d
         w = individuo.w
         p = individuo.p
@@ -66,9 +71,40 @@ class AGEspiraQuadrada(AG):
             z = espira_quadrada.calculo_impedancia(frequencia, self.angulo_incidencia)
             zfss = z["r"] + 1j * z["x"]
             abcd = [
-                    [1, 0],
-                    [1 / zfss, 1]
-                   ]
+                    [1, zfss],
+                    [0, 1]
+            ]
+
+            '''s1.append(
+                AGUtil.calculo_s2(
+                    self.otimizacao,
+                    [[1, 0],
+                     [1 / zfss, 1]],
+                    espira_quadrada.z0
+                )
+            )
+            s2.append(AGUtil.calculo_s2(
+                    self.otimizacao,
+                    [[1, 0],
+                     [zfss, 1]],
+                    espira_quadrada.z0
+                )
+            )
+            s3.append(AGUtil.calculo_s2(
+                    self.otimizacao,
+                    [[1, 1 / zfss],
+                     [0, 1]],
+                    espira_quadrada.z0
+                )
+            )
+            s4.append(
+                AGUtil.calculo_s2(
+                    self.otimizacao,
+                    [[1, zfss],
+                     [0, 1]],
+                    espira_quadrada.z0
+                )
+            )'''
 
             z_pass_band_r.append(z["r"])
             z_pass_band_i.append(z["x"])
@@ -76,7 +112,7 @@ class AGEspiraQuadrada(AG):
             s_ao_quadrado = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
 
             zespira = np.append(curva, abs(zfss))
-            curva = np.append(curva, 10 * math.log(1 - s_ao_quadrado, 10))
+            curva = np.append(curva, 10 * math.log(s_ao_quadrado, 10))
 
         curva_normalizada = np.true_divide(curva, max(np.abs(curva))) + 1
 
@@ -84,16 +120,21 @@ class AGEspiraQuadrada(AG):
 
         if self.otimizacao == "r":
             diferenca = curva_normalizada - self.curva_referencia_r
-            c = self.dados["SENSIBILIDADE_FAIXA_ESPIRA"]
-            diferenca = np.array(diferenca) * (c / (c - 1) - np.array(self.curva_referencia_r))
+
+            pico = abs(np.min(curva))
+            f = np.sum(np.square(diferenca)) * ((pico + 10) / pico)
+
         elif self.otimizacao == "t":
             diferenca = curva_normalizada - self.curva_referencia_t
+            c = self.dados["SENSIBILIDADE_FAIXA_ESPIRA"]
+            diferenca = np.array(diferenca) * (c / (c - 1) - np.array(self.curva_referencia_r))
+
+            pico = abs(np.max(curva))
+            f = np.sum(np.square(diferenca)) * ((pico + 10) / pico)
+
         elif self.otimizacao == "a":
             diferenca = curva_normalizada - self.curva_referencia_a
 
-        
-        pico = abs(np.min(curva))
-        f = np.sum(np.square(diferenca)) * ((pico + 10) / pico)
 
         return {
                 "fitness": f,
@@ -101,23 +142,15 @@ class AGEspiraQuadrada(AG):
                 "curva": curva,
                 "impedancia": zespira,
                 "z_pass_band_r": z_pass_band_r,
-                "z_pass_band_i": z_pass_band_i
+                "z_pass_band_i": z_pass_band_i,
+                "s1": 10*np.log10(s1),
+                "s2": 10*np.log10(s2),
+                "s3": 10*np.log10(s3),
+                "s4": 10*np.log10(s4)
         }
 
     def crossover_espira_quadrada(self, macho, femea):
         # Ultrapassagem do crossover, assim será possivel o filho ter um valor fora do intervalo dos pais
         n = self.ultrapassagem_crossover
 
-        # Limites de p: [1e-4, 9999]
-        p = AGUtil.combinar_real(n, [1e-4, 9999], macho.p, femea.p)
-        # Limites de d: [1e-4, 0.9p]
-        d = AGUtil.combinar_real(n, [1e-4, 0.9 * p], macho.d, femea.d)
-        # Limites de w: [1e-4, d/2]
-        w = AGUtil.combinar_real(n, [1e-4, d / 2], macho.w, femea.w)
-        # Limites de p: [0, 9999]
-        r = AGUtil.combinar_real(n, [0, 9999], macho.r, femea.r)
-
-        resultado = Individuo()
-        resultado.set_espira_quadrada(d, w, p, r)
-
-        return resultado
+        return super().crossover(n, macho, femea)

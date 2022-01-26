@@ -98,7 +98,7 @@ class AGUtil:
             x2 = abs((2 * (a * d - b * c) / denominador) ** 2)
         elif otimizacao == "a":
             r2 = abs(((a + b / z0 - c * z0 - d) / denominador) ** 2)
-            t2 = abs((2 * (a * d - b * c)/ denominador) ** 2)
+            t2 = abs((2 * (a * d - b * c) / denominador) ** 2)
             x2 = 1 / (r2 + t2)
 
         # Erro de arredondamento, x2 não pode ser 1
@@ -166,8 +166,8 @@ class AGUtil:
 
     def get_passa_faixa(self, individuo):
         return EspiraQuadrada(
-            individuo.w,
             individuo.d,
+            individuo.w,
             individuo.p,
             individuo.r
         )

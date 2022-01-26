@@ -51,30 +51,37 @@ class ReadFromCST:
 
         dielectric_s = np.array([s11D,s12D,s21D,s22D])**2
         pass_band_s = np.array([s11P,s12P,s21P,s22P])**2
-        resistive_s = np.array([s11R,s12R,s21R,s22R])**2 
+        resistive_s = np.array([s11R,s12R,s21R,s22R])**2
 
-        cascade = self.s_cascade(resistive_s, dielectric_s)
-        cascade = self.s_cascade(cascade, pass_band_s)
+        pass_band_s = pass_band_s / pass_band_s
+        pass_band_s[1] = np.zeros(len(pass_band_s[1]))
+        pass_band_s[2] = 9999999*np.zeros(len(pass_band_s[1]))
+
+        cascade = self.s_cascade(abs(resistive_s), abs(dielectric_s))
+        cascade = self.s_cascade(abs(cascade), abs(pass_band_s))
+
+        #cascade = self.s_cascade(abs(pass_band_s), abs(dielectric_s))
+        #cascade = self.s_cascade(abs(cascade), abs(resistive_s))
         
-        rdb = 10 * np.log10(abs(cascade[0]))
-        tdb = 10 * np.log10(abs(cascade[1]))
+        rdb = 10 * np.log10(abs(pass_band_s))
+        tdb = 10 * np.log10(abs(dielectric_s))
         adb = -10 * np.log10(abs(cascade[0]) + abs(cascade[1]))
 
         show = Plots(linspace=np.linspace(1, 25, len(rdb)))
 
-        show.plotar(rdb,
+        show.plotar(pass_band_s,
                     x="Frequency (GHz)",
                     y="S11(dB)",
                     title="S11"
                     )
         
-        show.plotar(tdb,
+        show.plotar(dielectric_s,
                     x="Frequency (GHz)",
                     y="S12(dB)",
                     title="S12"
                     )
         
-        show.plotar(adb,
+        show.plotar(abs(cascade[0]) + abs(cascade[1]),
                     x="Frequency (GHz)",
                     y="A(dB)",
                     title="A"

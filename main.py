@@ -21,17 +21,15 @@ class Main:
         self.show_time()
 
         espira_quadrada_otima = EspiraQuadrada(
-            tamanho = 0.010952641389612801,
-            espessura = 0.0003012541304638827,
-            periodicidade = 0.011097212777712993,
+            tamanho=10.7255e-3,
+            espessura=0.7444e-4,
+            periodicidade=11.5145e-3,
             resistencia = 0
         )
 
         manager = AGManager()
-        espira_quadrada_otima = manager.otimizar_espira_quadrada()
-        espira_quadrada_otima = AGUtil().get_passa_faixa(
-            espira_quadrada_otima
-        )
+        #espira_quadrada_otima = manager.otimizar_espira_quadrada()
+        espira_quadrada_otima = AGUtil().get_passa_faixa(espira_quadrada_otima)
 
         print("Passa-Faixa Finalizada")
         self.show_time()
@@ -57,10 +55,11 @@ class Main:
             u=1.2566e-06,
             l=0.0045714363307545105
         )
-        #manager.plotar_arranjo(fss_artigo, espira_quadrada_otima)
-        #manager.plotar_arranjo(fss, espira_quadrada_otima)
+        manager.plotar_arranjo(fss_artigo, espira_quadrada_otima)
+        manager.plotar_arranjo(fss, espira_quadrada_otima)
+        #manager.plotar_espira(espira_quadrada_otima)
 
-        manager.otimizar_arranjo(espira_quadrada_otima)
+        #manager.otimizar_arranjo(espira_quadrada_otima)
 
         print("Arranjo Finalizado")
         self.show_time()

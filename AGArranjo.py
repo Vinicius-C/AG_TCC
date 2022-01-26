@@ -112,7 +112,7 @@ class AGArranjo(AG):
         w = AGUtil.gerar_no_intervalo(self.dados["INTERVALO_W/D_PRIMEIRO_ARRANJO"]) * d
 
         # Rop = Zm^2*tan(km*d)^2/Z0
-        frequencia = (10 ** 9) * 6.5
+        frequencia = (10 ** 9) * 5
         dieletrico = Substrato(l, e, u)
         zm = dieletrico.get_impedancia(self.modo, frequencia, self.angulo_incidencia)
         r = (zm ** 2) / FSS.z0
@@ -183,8 +183,8 @@ class AGArranjo(AG):
                 z2 = self.espira_passa_faixa.calculo_impedancia(frequencia, self.angulo_incidencia)
                 zfss2 = z2["r"] + 1j * z2["x"]
                 abcd_passa_faixa = [
-                    [1, 0],
-                    [zfss2, 1]
+                    [1, zfss2],
+                    [0, 1]
                 ]
                 z_pass_band_r.append(z2["r"])
                 z_pass_band_i.append(z2["x"])
@@ -244,13 +244,11 @@ class AGArranjo(AG):
         elif metodo in "sum_influence":
             for i in range(self.passos):
                 if self.curva_referencia_a[i] == 1:
-                    peso = self.pesos[i]
-                    peso = peso * (curva[i]/ 30)
                     x = self.pesos[i] * (1 / curva[i])
                 else:
                     x = self.pesos[i] * curva[i]
 
-                f += x
+                f += x ** 2
                 curva_fitness.append(x)
 
         elif metodo == "compare_curve" or True:
@@ -264,7 +262,7 @@ class AGArranjo(AG):
                 if diferenca[i] > 0:
                     x = -1 * self.pesos[i] * diferenca[i]
                 else:
-                    x = self.pesos[i] * abs(diferenca[i]) * 5
+                    x = self.pesos[i] * abs(diferenca[i]) * 50
 
                 f += x
                 curva_fitness.append(x)
@@ -297,16 +295,37 @@ class AGArranjo(AG):
         r = espira_quadrada.r
 
         if self.busca_dieletrico:
-            l = AGUtil.combinar_real(n, [self.l_inf, self.l_sup], macho.l, femea.l)
-            # Limites de p: [0, 5eo]
-            e = AGUtil.combinar_real(n, [0.8 * Substrato.e0, 1.6 * Substrato.e0], macho.e, femea.e)
-            # Limites de p: [0, 5u0]
-            u = macho.u
-            # u = self.combinar_real(n, [0.8*1.2566*(10**-6), 2*1.2566*(10**-6)], macho.u, femea.u)
+
+            l = AGUtil.combinar_real(
+                n,
+                [self.l_inf, self.l_sup],
+                macho.l,
+                femea.l,
+            )
+
+            e = AGUtil.combinar_real(
+                n,
+                np.array(self.dados["INTERVALO_E/E0_PERMITIDO"]) * Substrato.e0,
+                macho.e,
+                femea.e
+            )
+
+            u = AGUtil.combinar_real(
+                n,
+                np.array(self.dados["INTERVALO_U/U0_PERMITIDO"]) * Substrato.u0,
+                macho.u,
+                femea.u
+            )
+
         else:
             e = self.er * Substrato.e0
             u = self.ur * Substrato.u0
-            l = AGUtil.combinar_real(n, [self.l_inf, self.l_sup], macho.l, femea.l)
+            l = AGUtil.combinar_real(
+                n,
+                [self.l_inf, self.l_sup],
+                macho.l,
+                femea.l
+            )
 
         resultado = Individuo()
         resultado.set_arranjo(d, w, p, r, l, e, u)

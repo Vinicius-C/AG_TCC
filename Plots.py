@@ -59,6 +59,25 @@ class Plots:
             title="Melhor Arranjo"
         )
 
+        use_ground = ag.dados["UTILIZAR_GROUND"]
+
+        if not use_ground:
+            self.plotar(
+                dados["z_pass_band_r"],
+                x="Frequency (GHz)",
+                y="Re{Z_Pass-Band} (dB)",
+                xvline=ag.faixa_f_antena,
+                title="Melhor Arranjo"
+            )
+
+            self.plotar(
+                dados["z_pass_band_i"],
+                x="Frequency (GHz)",
+                y="Im{Z_EQ} (dB)",
+                xvline=ag.faixa_f_antena,
+                title="Melhor Arranjo"
+            )
+
         metodo = ag.dados["METODO_FITNESS_ARRANJO"]
 
         if metodo == "compare_ideal":

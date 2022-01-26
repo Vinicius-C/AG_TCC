@@ -1,6 +1,7 @@
 import numpy as np
-from Substrato import Substrato
 
+from Substrato import Substrato
+from AGUtil import AGUtil
 
 class Individuo:
     fitness = None
@@ -66,18 +67,51 @@ class Individuo:
             if limite_inf <= valor < limite_sup:
                 return valor
 
-    def mutacao(self, taxa_mutacao, busca_dieletrico, l_inf, l_sup, intervalo_salisbury, angulo_incidencia):
-        self.p = self.mutar_variavel(taxa_mutacao, self.p, 10 ** (0 - 4), 1)
-        self.d = self.mutar_variavel(taxa_mutacao, self.d, 10 ** (0 - 4) * 0.99, self.p * 0.99)
-        self.w = self.mutar_variavel(taxa_mutacao, self.w, 10 ** (0 - 4) * 0.5 * 0.99, self.d * 0.5)
-        self.r = self.mutar_variavel(taxa_mutacao, self.r, 0, 999)
+    def mutacao(self, taxa_mutacao, busca_dieletrico, l_inf, l_sup, intervalo_salisbury, angulo_incidencia, dados):
+
+        self.p = self.mutar_variavel(
+            taxa_mutacao,
+            self.p,
+            dados["INTERVALO_P_PRIMEIRO_ESPIRA_VALIDO"][0],
+            dados["INTERVALO_P_PRIMEIRO_ESPIRA_VALIDO"][1]
+        )
+        self.d = self.mutar_variavel(
+            taxa_mutacao,
+            self.d,
+            dados["INTERVALO_D/P_PRIMEIRO_ESPIRA_VALIDO"][0] * self.p,
+            dados["INTERVALO_D/P_PRIMEIRO_ESPIRA_VALIDO"][1] * self.p
+        )
+        self.w = self.mutar_variavel(
+            taxa_mutacao,
+            self.w,
+            dados["INTERVALO_W/D_PRIMEIRO_ESPIRA_VALIDO"][0] * self.d,
+            dados["INTERVALO_W/D_PRIMEIRO_ESPIRA_VALIDO"][1] * self.d
+        )
+        self.r = self.mutar_variavel(
+            taxa_mutacao,
+            self.r,
+            dados["INTERVALO_R_PRIMEIRO_ESPIRA_VALIDO"][0],
+            dados["INTERVALO_R_PRIMEIRO_ESPIRA_VALIDO"][1]
+        )
         if busca_dieletrico:
-            self.e = self.mutar_variavel(taxa_mutacao, self.e, 0.8 * 8.85418 * (10 ** -12), 8 * 8.85418 * (10 ** -12))
+            self.e = self.mutar_variavel(
+                taxa_mutacao,
+                self.e,
+                dados["INTERVALO_E/E0_PERMITIDO"][0] * 8.85418 * (10 ** -12),
+                dados["INTERVALO_E/E0_PERMITIDO"][1] *  8.85418 * (10 ** -12)
+            )
             # self.u = self.mutar_variavel(taxa_mutacao, self.u, 0.8*1.2566*(10**-6), 1.2*1.2566*(10**-6))
             # Intervalo: intervalo_salisbury[0]-intervalo_salisbury[1] (Definido pelo usuário)
             substrato = Substrato(None, self.e, self.u)
-            l_inf = substrato.largura_salisbury(intervalo_salisbury[1] * 10 ** 9, angulo_incidencia)
-            l_sup = substrato.largura_salisbury(intervalo_salisbury[0] * 10 ** 9, angulo_incidencia)
+            l_inf = substrato.largura_salisbury(
+                intervalo_salisbury[1] * 10 ** 9,
+                angulo_incidencia
+            )
+            l_sup = substrato.largura_salisbury(
+                intervalo_salisbury[0] * 10 ** 9,
+                angulo_incidencia
+            )
             self.l = self.mutar_variavel(taxa_mutacao, self.l, l_inf, l_sup)
+
         else:
             self.l = self.mutar_variavel(taxa_mutacao, self.l, l_inf, l_sup)

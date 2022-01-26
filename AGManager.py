@@ -137,6 +137,9 @@ class AGManager:
             if fitness == x["fitness"]:
                 count_mesmo_fitness += 1
             else:
+                title = "S, Fit: {:.2f} - p: {:.2f} - " \
+                        "d: {:.2f} - \n w: {:.2f} - r: {:.1f} - " \
+                        "e: {:.3f} - u: {:.3f}"
                 show.plotar(
                     [
                         x["curva"],
@@ -145,7 +148,15 @@ class AGManager:
                     x="Frequency (GHz)",
                     y=ag.otimizacao.upper() + "(dB) [Novo Fitness]",
                     xvline=ag.faixa_f_antena,
-                    title="S, Fitness: {}".format(x["fitness"]),
+                    title=title.format(
+                        x["fitness"],
+                        novo.p * 10 ** 3,
+                        novo.d * 10 ** 3,
+                        novo.w * 10 ** 3,
+                        novo.r,
+                        novo.e * 10 ** 12,
+                        novo.u * 10 ** 7
+                    ),
                     many=True
                 )
                 print(novo.r)
@@ -185,10 +196,41 @@ class AGManager:
     def plotar_espira(self, individuo, x="x", y="y", title="Title"):
         ag = AGEspiraQuadrada()
         show = Plots(ag=ag)
-        show.plotar(
-            ag.solve_espira_quadrada(individuo)["curva"],
+
+        resultado = ag.solve_espira_quadrada(individuo)
+
+        '''show.plotar(
+            resultado["curva"],
             x="GHz",
             y="A(db)",
             xvline=ag.faixa_f_antena,
             title="Resultado"
         )
+        show.plotar(
+            resultado["s1"],
+            x="Frequency (GHz)",
+            y="S (dB)",
+            xvline=ag.faixa_f_antena,
+            title="S1"
+        )
+        show.plotar(
+            resultado["s2"],
+            x="Frequency (GHz)",
+            y="S (dB)",
+            xvline=ag.faixa_f_antena,
+            title="S2"
+        )
+        show.plotar(
+            resultado["s3"],
+            x="Frequency (GHz)",
+            y="S (dB)",
+            xvline=ag.faixa_f_antena,
+            title="S3"
+        )
+        show.plotar(
+            resultado["s4"],
+            x="Frequency (GHz)",
+            y="S (dB)",
+            xvline=ag.faixa_f_antena,
+            title="S4"
+        )'''

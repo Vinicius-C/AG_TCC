@@ -1,3 +1,5 @@
+import numpy as np
+
 from AGUtil import AGUtil
 from Individuo import Individuo
 
@@ -92,6 +94,20 @@ class AG(AGUtil):
                     break
                     # Se não existir mais para comparar já pode pausar
 
+        if len(selecionados) == 0:
+            for j in range(self.tamanho_geracao):
+                #print(str(self.geracao[j].p))
+                fitness_j = funcao_fitness(self.geracao[j])["fitness"]
+                for k in range(self.n_selecionados):
+                    if fitness_j < fitness_selecionados[k]:
+                        selecionados.insert(k, self.geracao[j])
+                        fitness_selecionados.insert(k, fitness_j)
+                        break
+                        # Se for maior que um da lista de selecionados já pode pausar
+                    elif len(fitness_selecionados) <= k + 1:
+                        break
+                        # Se não existir mais para comparar já pode pausar
+
         # Substituir geração
         self.geracao = selecionados
 
@@ -103,7 +119,7 @@ class AG(AGUtil):
             # Gera o filho
             filho = funcao_crossover(macho, femea)
             filho.mutacao(self.taxa_mutacao, self.busca_dieletrico, self.l_inf, self.l_sup,
-                          self.intervalo_salisbury, self.angulo_incidencia)
+                          self.intervalo_salisbury, self.angulo_incidencia, self.dados)
 
             self.geracao.append(filho)
 
@@ -118,14 +134,33 @@ class AG(AGUtil):
         # Ultrapassagem do crossover, assim será possivel o filho ter um valor fora do intervalo dos pais
         n = n
 
-        # Limites de p: [1e-4, 1]
-        p = AGUtil.combinar_real(n, [1e-4, 1], macho.p, femea.p)
-        # Limites de d: [1e-4, 0.95p]
-        d = AGUtil.combinar_real(n, [1e-4, 0.95 * p], macho.d, femea.d)
-        # Limites de w: [1e-4, d/2]
-        w = AGUtil.combinar_real(n, [1e-4, d / 2], macho.w, femea.w)
-        # Limites de r: [0, 9999]
-        r = AGUtil.combinar_real(n, [0, 999], macho.r, femea.r)
+        p = AGUtil.combinar_real(
+            n,
+            np.array(self.dados["INTERVALO_P_PRIMEIRO_ESPIRA_VALIDO"]),
+            macho.p,
+            femea.p
+        )
+
+        d = AGUtil.combinar_real(
+            n,
+            np.array(self.dados["INTERVALO_D/P_PRIMEIRO_ESPIRA_VALIDO"]) * p,
+            macho.d,
+            femea.d
+        )
+
+        w = AGUtil.combinar_real(
+            n,
+            np.array(self.dados["INTERVALO_W/D_PRIMEIRO_ESPIRA_VALIDO"]) * d,
+            macho.w,
+            femea.w
+        )
+
+        r = AGUtil.combinar_real(
+            n,
+            self.dados["INTERVALO_R_PRIMEIRO_ESPIRA_VALIDO"],
+            macho.r,
+            femea.r
+        )
 
         resultado = Individuo()
         resultado.set_espira_quadrada(d, w, p, r)
