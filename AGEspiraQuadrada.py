@@ -44,6 +44,8 @@ class AGEspiraQuadrada(AG):
     def solve_espira_quadrada(self, individuo):
         curva = []
         zespira = []
+        z_pass_band_r = []
+        z_pass_band_i = []
 
         d = individuo.d
         w = individuo.w
@@ -67,6 +69,10 @@ class AGEspiraQuadrada(AG):
                     [1, 0],
                     [1 / zfss, 1]
                    ]
+
+            z_pass_band_r.append(z["r"])
+            z_pass_band_i.append(z["x"])
+
             s_ao_quadrado = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
 
             zespira = np.append(curva, abs(zfss))
@@ -93,7 +99,9 @@ class AGEspiraQuadrada(AG):
                 "fitness": f,
                 "curva_normalizada": curva_normalizada,
                 "curva": curva,
-                "impedancia": zespira
+                "impedancia": zespira,
+                "z_pass_band_r": z_pass_band_r,
+                "z_pass_band_i": z_pass_band_i
         }
 
     def crossover_espira_quadrada(self, macho, femea):

@@ -56,17 +56,18 @@ class AGManager:
                 index_menor = i
 
         espira_quadrada_otima = ag.geracao[index_menor]
+        resultado = ag.solve_espira_quadrada(espira_quadrada_otima)
 
         print("A melhor espira quadrada encontrada foi: ")
         print("d: " + str(espira_quadrada_otima.d))
         print("p: " + str(espira_quadrada_otima.p))
         print("w: " + str(espira_quadrada_otima.w))
         print("r: " + str(espira_quadrada_otima.r))
-        print("f: " + str(ag.solve_espira_quadrada(espira_quadrada_otima)["fitness"]) + "\n")
+        print("f: " + str(resultado["fitness"]) + "\n")
 
         show = Plots(ag=ag)
         show.plotar(
-            ag.solve_espira_quadrada(espira_quadrada_otima)["curva"],
+            resultado["curva"],
             x="Frequency (GHz)",
             y=ag.otimizacao.upper() + "(dB)",
             xvline=ag.faixa_f_antena,
@@ -85,6 +86,17 @@ class AGManager:
             y=ag.otimizacao.upper() + "[Curva Ideal]",
             xvline=ag.faixa_f_antena,
             title="S"
+        )
+        show.plotar(
+            [
+                resultado["z_pass_band_r"],
+                resultado["z_pass_band_i"]
+            ],
+            x="Frequency (GHz)",
+            y="Z (Ohms)",
+            xvline=ag.faixa_f_antena,
+            title="Impedância da FSS",
+            many=True
         )
 
         return espira_quadrada_otima

@@ -2,6 +2,8 @@ import numpy as np
 import random
 import json
 
+from EspiraQuadrada import EspiraQuadrada
+
 
 class AGUtil:
     def __init__(self):
@@ -164,8 +166,8 @@ class AGUtil:
 
     def get_passa_faixa(self, individuo):
         return EspiraQuadrada(
-            p = individuo.p,
-            d = individuo.d,
-            w = individuo.w,
-            r = individuo.r
+            individuo.w,
+            individuo.d,
+            individuo.p,
+            individuo.r
         )

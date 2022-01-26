@@ -28,8 +28,9 @@ class Main:
         )
 
         manager = AGManager()
-        espira_quadrada_otima = AGUtil.get_passa_faixa(
-            manager.otimizar_espira_quadrada()
+        espira_quadrada_otima = manager.otimizar_espira_quadrada()
+        espira_quadrada_otima = AGUtil().get_passa_faixa(
+            espira_quadrada_otima
         )
 
         print("Passa-Faixa Finalizada")

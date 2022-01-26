@@ -129,6 +129,8 @@ class AGArranjo(AG):
         zfssi = []
         list_zsubstrato = []
         zr = []
+        z_pass_band_r = []
+        z_pass_band_i = []
         s11 = []
         s12 = []
 
@@ -182,14 +184,17 @@ class AGArranjo(AG):
                 zfss2 = z2["r"] + 1j * z2["x"]
                 abcd_passa_faixa = [
                     [1, 0],
-                    [1 / zfss2, 1]
+                    [zfss2, 1]
                 ]
+                z_pass_band_r.append(z2["r"])
+                z_pass_band_i.append(z2["x"])
 
-            abcd = np.dot(abcd_fss, abcd_substrato)
-            abcd = np.dot(abcd, abcd_passa_faixa)
-            # Transmitting Mode
-            #abcd = np.dot(abcd_passa_faixa, abcd_substrato)
-            #abcd = np.dot(abcd, abcd_fss)
+            if self.dados['MODO'] == "TRANSMITTING":
+                abcd = np.dot(abcd_passa_faixa, abcd_substrato)
+                abcd = np.dot(abcd, abcd_fss)
+            else:
+                abcd = np.dot(abcd_fss, abcd_substrato)
+                abcd = np.dot(abcd, abcd_passa_faixa)
 
             a2 = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
             curva = np.append(curva, 10 * math.log(a2, 10))
@@ -276,7 +281,9 @@ class AGArranjo(AG):
             "zri": zr.imag,
             "curva_fitness": curva_fitness,
             "s11": s11,
-            "s12": s12
+            "s12": s12,
+            "z_pass_band_r": z_pass_band_r,
+            "z_pass_band_i": z_pass_band_i
         }
 
     def crossover_arranjo(self, macho, femea):
