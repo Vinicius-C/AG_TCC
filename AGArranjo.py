@@ -122,6 +122,8 @@ class AGArranjo(AG):
         zfssi = []
         list_zsubstrato = []
         zr = []
+        s11 = []
+        s12 = []
 
         d = individuo.d
         w = individuo.w
@@ -159,7 +161,7 @@ class AGArranjo(AG):
 
             abcd_passa_faixa = [
                 [1, 0],
-                [0, 1]
+                [9999999, 1]
             ]
             # Se houver espira quadrada passa-faixa selecionada anteriormente
             if self.espira_passa_faixa is not None:
@@ -178,12 +180,17 @@ class AGArranjo(AG):
 
             abcd = np.dot(abcd_fss, abcd_substrato)
             abcd = np.dot(abcd, abcd_passa_faixa)
-            # Recieve Mode
-            # abcd = np.dot(abcd_passa_faixa, abcd_substrato)
-            # abcd = np.dot(abcd, abcd_fss)
+            # Transmitting Mode
+            #abcd = np.dot(abcd_passa_faixa, abcd_substrato)
+            #abcd = np.dot(abcd, abcd_fss)
 
-            x2 = AGUtil.calculo_db(self.otimizacao, abcd, espira_quadrada.z0)
+            a2 = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
             curva = np.append(curva, 10 * math.log(x2, 10))
+            x11 = AGUtil.calculo_s2("r", abcd, espira_quadrada.z0)
+            s11 = np.append(s11, 10 * math.log(x11, 10))
+            x12 = AGUtil.calculo_s2("t", abcd, espira_quadrada.z0)
+            s12 = np.append(s12, 10 * math.log(x12, 10))
+
             zfssr = np.append(zfssr, z["r"])
             zfssi = np.append(zfssi, z["x"])
             zdieletrico = zd * math.tan(beta * l)
@@ -209,8 +216,8 @@ class AGArranjo(AG):
             diferenca = curva_normalizada - self.curva_referencia_a
             diferenca = np.multiply(diferenca, self.pesos)
 
-            x = abs(np.max(curva)) ** 2
-            f = np.sum(np.square(diferenca)) * (1 / x ** 2)
+            x = abs(np.max(curva))
+            f = np.sum(np.square(diferenca)) * (1 / x)
             # Reatância na Salisbury Screen
             g = abs(
                 espira_quadrada.calculo_impedancia(
@@ -231,6 +238,8 @@ class AGArranjo(AG):
             "zrr": zr.real,
             "zri": zr.imag,
             "curva_fitness": curva_fitness,
+            "s11": s11,
+            "s12": s12,
         }
 
     def crossover_arranjo(self, macho, femea):

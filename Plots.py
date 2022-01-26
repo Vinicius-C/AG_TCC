@@ -44,6 +44,22 @@ class Plots:
         )
 
         self.plotar(
+            dados["s11"],
+            x="Frequency (GHz)",
+            y="S11 (dB)",
+            xvline=ag.faixa_f_antena,
+            title="Melhor Arranjo"
+        )
+
+        self.plotar(
+            dados["s12"],
+            x="Frequency (GHz)",
+            y="S12 (dB)",
+            xvline=ag.faixa_f_antena,
+            title="Melhor Arranjo"
+        )
+
+        self.plotar(
             [
                 dados["curva normalizada"],
                 ag.curva_referencia_a,

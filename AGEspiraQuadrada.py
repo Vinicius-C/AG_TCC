@@ -67,7 +67,7 @@ class AGEspiraQuadrada(AG):
                     [1, 0],
                     [1 / zfss, 1]
                    ]
-            s_ao_quadrado = AGUtil.calculo_db(self.otimizacao, abcd, espira_quadrada.z0)
+            s_ao_quadrado = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
 
             zespira = np.append(curva, abs(zfss))
             curva = np.append(curva, 10 * math.log(1 - s_ao_quadrado, 10))

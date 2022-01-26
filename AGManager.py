@@ -144,26 +144,19 @@ class AGManager:
         print("l: " + str(arranjo_otimo.l))
         print("f: " + str(ag.solve_arranjo(arranjo_otimo)["fitness"]) + "\n")
 
-    def plotar_arranjo(self, individuo, x="x", y="y", title="Title"):
+    def plotar_arranjo(self, individuo, espira_passa_faixa):
         ag = AGArranjo()
+        ag.espira_passa_faixa = espira_passa_faixa
         show = Plots(ag=ag)
-
-        show.plotar(
-            ag.solve_arranjo(individuo)["curva"],
-            x=x,
-            y=y,
-            xvline=ag.faixa_f_antena,
-            title=title
-        )
+        show.plots_arranjo(ag, ag.solve_arranjo(individuo))
 
     def plotar_espira(self, individuo, x="x", y="y", title="Title"):
         ag = AGEspiraQuadrada()
         show = Plots(ag=ag)
-
         show.plotar(
             ag.solve_espira_quadrada(individuo)["curva"],
-            x=x,
-            y=y,
+            x="GHz",
+            y="A(db)",
             xvline=ag.faixa_f_antena,
-            title=title
+            title="Resultado"
         )

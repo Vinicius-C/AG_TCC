@@ -33,8 +33,8 @@ class Main:
 
         fss_artigo = Individuo()
         fss_artigo.set_arranjo(
-            d=0.011 * 1 / 16,
-            w=0.011 * 5 / 8,
+            w=0.011 * 3 / 16,
+            d=0.011 * 14 / 16,
             p=0.011,
             r=260,
             l=0.005,
@@ -42,9 +42,20 @@ class Main:
             u=1.2566 * (10 ** -6)
         )
 
-        manager.plotar_arranjo(fss_artigo, x="GHz", y="A(db)", title="Arranjo do Artigo")
+        fss = Individuo()
+        fss.set_arranjo(
+            d=0.006443234849969896,
+            p=0.011875353218173514,
+            w=7.231710347257352e-05,
+            r=800,
+            e=9.296889e-12,
+            u=1.2566e-06,
+            l=0.0045714363307545105
+        )
+        manager.plotar_arranjo(fss_artigo, espira_quadrada_otima)
+        manager.plotar_arranjo(fss, espira_quadrada_otima)
 
-        manager.otimizar_arranjo(espira_quadrada_otima)
+        #manager.otimizar_arranjo(espira_quadrada_otima)
 
         print("Arranjo Finalizado")
         self.show_time()

@@ -80,21 +80,22 @@ class AGUtil:
 
     # Z é a impedância
     @staticmethod
-    def calculo_db(otimizacao, abcd, z0):
+    def calculo_s2(otimizacao, abcd, z0):
         a = abcd[0][0]
         b = abcd[0][1]
         c = abcd[1][0]
         d = abcd[1][1]
 
         x2 = 0
+        denominador = (a + b / z0 + c * z0 + d)
 
         if otimizacao == "r":
-            x2 = abs(((a + b / z0 - c * z0 - d) / (a + b / z0 + c * z0 + d)) ** 2)
+            x2 = abs(((a + b / z0 - c * z0 - d) / denominador) ** 2)
         elif otimizacao == "t":
-            x2 = abs((2 / (a + b / z0 + c * z0 + d)) ** 2)
+            x2 = abs((2 * (a * d - b * c) / denominador) ** 2)
         elif otimizacao == "a":
-            r2 = abs(((a + b / z0 - c * z0 - d) / (a + b / z0 + c * z0 + d)) ** 2)
-            t2 = abs((2 / (a + b / z0 + c * z0 + d)) ** 2)
+            r2 = abs(((a + b / z0 - c * z0 - d) / denominador) ** 2)
+            t2 = abs((2 * (a * d - b * c)/ denominador) ** 2)
             x2 = 1 / (r2 + t2)
 
         # Erro de arredondamento, x2 não pode ser 1
