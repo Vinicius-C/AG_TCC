@@ -1,15 +1,33 @@
 import numpy as np
+import math
+
 from Plots import Plots
 
 
 class ReadFromCST:
 
-    @staticmethod
-    def s_cascade(x, y):
+    def mat_mul(self, x, y):
+        return np.array([
+            x[0] * y[0] + x[1] * y[2], x[0] * y[1] + x[1] * y[3],
+            x[1] * y[0] + x[2] * y[2], x[1] * y[1] + x[2] * y[3]
+        ]).astype("complex")
+
+    def s_cascade(self, x, y):
+
+        tx = np.array([
+            x[2] ** -1, -x[2] ** -1 * x[3],
+            x[0] * x[2] ** -1, x[1] - x[0] * x[2] ** -1 * x[3]
+        ]).astype("complex")
+        ty = np.array([
+            y[2] ** -1, -y[2] ** -1 * y[3],
+            y[0] * y[2] ** -1, y[1] - y[0] * y[2] ** -1 * y[3]
+        ]).astype("complex")
+
+        return self.mat_mul(tx, ty)
 
         denominador = (1 - x[3] * y[0])
 
-        s11 = x[0] + (x[2] * x[1] * y[0]) / denominador
+        s11 = - x[0] - (x[2] * x[1] * y[0]) / denominador
         s12 = (x[1] * y[1]) / denominador
         s21 = (x[2] * y[2]) / denominador
         s22 = y[3] + (y[2] * y[1] * x[3]) / denominador
@@ -52,21 +70,22 @@ class ReadFromCST:
         pass_band_s = np.array([s11P,s12P,s21P,s22P])
         resistive_s = np.array([s11R,s12R,s21R,s22R])
 
-        pass_band_s = pass_band_s / pass_band_s
+        pass_band_s = pass_band_s / pass_band_s * -1
         pass_band_s[1] = np.zeros(len(pass_band_s[1]))
         pass_band_s[2] = 9999999*np.zeros(len(pass_band_s[1]))
-        cascade = np.ones(len(resistive_s))*0.5
-        cascade = [cascade, cascade, cascade, cascade]
-        cascade = self.s_cascade(cascade, cascade)
-        #cascade = self.s_cascade(abs(resistive_s) ** 2, abs(dielectric_s) ** 2)
-        #cascade = self.s_cascade(abs(cascade) ** 2, abs(pass_band_s) ** 2)
+        #cascade = np.ones(len(resistive_s))*math.sqrt(0.5)
+        #cascade = [cascade, cascade, cascade, cascade]
+        #cascade = self.s_cascade(cascade, cascade)
+
+        cascade = self.s_cascade(resistive_s, dielectric_s).astype("complex")
+        cascade = self.s_cascade(cascade, pass_band_s).astype("complex")
 
         #cascade = self.s_cascade(abs(pass_band_s), abs(dielectric_s))
         #cascade = self.s_cascade(abs(cascade), abs(resistive_s))
-        
-        rdb = 10 * np.log10(cascade[0])
-        tdb = 10 * np.log10(cascade[1])
-        adb = -10 * np.log10(cascade[0] + abs(cascade[1]))
+        print(cascade)
+        rdb = 10 * np.log10(np.abs(cascade[0]))
+        tdb = 10 * np.log10(np.abs(cascade[1]))
+        adb = -10 * np.log10(np.abs(cascade[0]) + np.abs(cascade[1]))
 
         show = Plots(linspace=np.linspace(1, 25, len(rdb)))
 

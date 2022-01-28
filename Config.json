@@ -44,11 +44,11 @@
   "UR" : 1,
   "PESOS_ABSORCAO": [
             [null, 4.2, 0],
-            [4.2, 6, 0],
+            [4.2, 6, 10],
             [6, 22, 1],
             [22, null, 1]
         ],
-  "UTILIZAR_GROUND": false,
+  "UTILIZAR_GROUND": true,
   "METODO_FITNESS_ARRANJO": "sum_sequence",
 
   "MODE": "RECEIVING"

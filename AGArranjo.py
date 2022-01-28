@@ -198,6 +198,7 @@ class AGArranjo(AG):
 
             a2 = AGUtil.calculo_s2(self.otimizacao, abcd, espira_quadrada.z0)
             curva = np.append(curva, 10 * math.log(a2, 10))
+
             x11 = AGUtil.calculo_s2("r", abcd, espira_quadrada.z0)
             s11 = np.append(s11, 10 * math.log(x11, 10))
             x12 = AGUtil.calculo_s2("t", abcd, espira_quadrada.z0)
