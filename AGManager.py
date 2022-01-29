@@ -137,7 +137,7 @@ class AGManager:
             if fitness == x["fitness"]:
                 count_mesmo_fitness += 1
             else:
-                title = "S, Fit: {:.2f} - p: {:.2f} - " \
+                title = "S, Geração: {} - Fit: {:.2f} - p: {:.2f} - " \
                         "d: {:.2f} - \n w: {:.2f} - r: {:.1f} - " \
                         "e: {:.3f} - u: {:.3f}"
                 show.plotar(
@@ -149,6 +149,7 @@ class AGManager:
                     y=ag.otimizacao.upper() + "(dB) [Novo Fitness]",
                     xvline=ag.faixa_f_antena,
                     title=title.format(
+                        j,
                         x["fitness"],
                         novo.p * 10 ** 3,
                         novo.d * 10 ** 3,
