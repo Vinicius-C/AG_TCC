@@ -1,6 +1,6 @@
 {
-  "TAXA_MUTACAO" : 0.4,
-  "ULTRAPASSAGEM_CROSSOVER" : 0.1,
+  "TAXA_MUTACAO" : 0.1,
+  "ULTRAPASSAGEM_CROSSOVER" : 0.5,
   "TAMANHO_GERACAO" : 130,
   "INTERVALO_CURVA" : [1, 25],
   "N_SELECIONADOS" : 30,
@@ -27,6 +27,7 @@
   "INTERVALO_P_PRIMEIRO_ARRANJO": [0.00999, 0.015001],
   "INTERVALO_D/P_PRIMEIRO_ARRANJO": [0.5749, 0.89751],
   "INTERVALO_W/D_PRIMEIRO_ARRANJO": [0.114, 0.485],
+  "INTERVALO_R_PRIMEIRO_ARRANJO": [0.114, 0.485],
 
   "INTERVALO_E/E0_PERMITIDO": [0.95, 1.6],
   "INTERVALO_U/U0_PERMITIDO": [0.99, 1.1],
@@ -44,9 +45,9 @@
   "UR" : 1,
   "PESOS_ABSORCAO": [
             [null, 4.2, 0],
-            [4.2, 6, 10],
-            [6, 22, 1],
-            [22, null, 1]
+            [4.2, 6, -20],
+            [6, 10, 10],
+            [10, null, 1]
         ],
   "UTILIZAR_GROUND": true,
   "METODO_FITNESS_ARRANJO": "sum_sequence",
