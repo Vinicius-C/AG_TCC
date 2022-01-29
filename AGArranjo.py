@@ -112,10 +112,12 @@ class AGArranjo(AG):
         w = AGUtil.gerar_no_intervalo(self.dados["INTERVALO_W/D_PRIMEIRO_ARRANJO"]) * d
 
         # Rop = Zm^2*tan(km*d)^2/Z0
-        frequencia = (10 ** 9) * 5
-        dieletrico = Substrato(l, e, u)
-        zm = dieletrico.get_impedancia(self.modo, frequencia, self.angulo_incidencia)
-        r = (zm ** 2) / FSS.z0
+        #frequencia = (10 ** 9) * self.dados["FREQUENCIA_INICIAL_RESSONÂNCIA"]
+        #dieletrico = Substrato(l, e, u)
+        #zm = dieletrico.get_impedancia(self.modo, frequencia, self.angulo_incidencia)
+        #r = (zm ** 2) / FSS.z0
+
+        r = AGUtil.gerar_no_intervalo(self.dados["INTERVALO_R_PRIMEIRO_ARRANJO"])
 
         # EspiraQuadrada(Tamanho Quadrado Maior, Espessura, Periodicidade, Resistência,
         # Largura Dieletrico, Permissividade, Permeabilidade)
