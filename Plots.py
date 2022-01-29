@@ -13,7 +13,7 @@ class Plots:
         if linspace is not None:
             self.eixo_x = linspace
 
-    def plotar(self, dados, x="x", y="y", title="Title", xvline=None, ylim=None, many=False):
+    def plotar(self, dados, x="x", y="y", title="Title", legends=None, xvline=None, ylim=None, many=False):
         if ylim is not None:
             plt.ylim(ylim[0], ylim[1])
 
@@ -21,7 +21,7 @@ class Plots:
             plt.axvline(x=xvline[0])
             plt.axvline(x=xvline[1])
 
-        plt.grid(linestyle='--')
+        plt.grid(True)
         plt.xlabel(x)
         plt.ylabel(y)
         plt.title(title)
@@ -30,9 +30,23 @@ class Plots:
             plt.plot(self.eixo_x, dados)
             plt.show()
         else:
+            i = 0
+
             for dado in dados:
-                plt.plot(self.eixo_x, dado)
-            plt.show()
+                if legends is not None:
+                    plt.plot(
+                        self.eixo_x, dado,
+                        color=legends[i]["color"],
+                        label=legends[i]["label"]
+                    )
+                else:
+                    plt.plot(self.eixo_x, dado)
+
+                i += 1
+            try:
+                plt.legend()
+            finally:
+                plt.show()
 
     def plots_arranjo(self, ag, dados):
         self.plotar(
@@ -87,6 +101,11 @@ class Plots:
                     ag.curva_referencia_a,
                     dados["diferenca ao quadrado"]
                 ],
+                legends=[
+                    {"color": "#17a589", "label": "Curva Normalizada"},
+                    {"color": "#f4d03f", "label": "Curva A Ideal"},
+                    {"color": "red", "label": "Diferença²"}
+                ],
                 x="Frequency (GHz)",
                 y="A Normalizado",
                 xvline=ag.faixa_f_antena,
@@ -101,6 +120,11 @@ class Plots:
                     ag.curva_referencia_a,
                     dados["curva_fitness"]
                 ],
+                legends=[
+                    {"color": "#17a589", "label": "Curva Normalizada"},
+                    {"color": "#f4d03f", "label": "Curva A Ideal"},
+                    {"color": "red", "label": "Influência no Fitness"}
+                ],
                 x="Frequency (GHz)",
                 y="A Normalizado",
                 xvline=ag.faixa_f_antena,
@@ -114,6 +138,11 @@ class Plots:
                     dados["curva normalizada"],
                     ag.curva_referencia_a,
                     dados["curva_fitness"]
+                ],
+                legends=[
+                    {"color": "#17a589", "label": "Curva Normalizada"},
+                    {"color": "#f4d03f", "label": "Curva A Ideal"},
+                    {"color": "red", "label": "Influência no Fitness"}
                 ],
                 x="Frequency (GHz)",
                 y="A Normalizado",
@@ -146,6 +175,11 @@ class Plots:
                 dados["zsubstrato"],
                 dados["zfssi"] + dados["zsubstrato"]
             ],
+            legends=[
+                {"color": "#17a589", "label": "Reatância da RFSS"},
+                {"color": "#f4d03f", "label": "Impedância do Dielétrico"},
+                {"color": "red", "label": "Soma dos 2 Anteriores"}
+            ],
             x="Frequency (GHz)",
             y="I{ZFSS} e Zd (Ohm)",
             xvline=ag.faixa_f_antena,
@@ -158,6 +192,10 @@ class Plots:
             [
                 dados["zrr"],
                 dados["zri"]
+            ],
+            legends=[
+                {"color": "#17a589", "label": "Re{RFSS + Dielétrico}"},
+                {"color": "#f4d03f", "label": "Im{RFSS + Dielétrico}"}
             ],
             x="Frequency (GHz)",
             y="Zr (Ohm)",
