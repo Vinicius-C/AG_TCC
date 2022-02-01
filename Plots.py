@@ -21,14 +21,28 @@ class Plots:
             plt.axvline(x=xvline[0])
             plt.axvline(x=xvline[1])
 
-        plt.grid(True)
+        plt.grid(linestyle="dotted")
         plt.xlabel(x)
         plt.ylabel(y)
         plt.title(title)
 
         if not many:
-            plt.plot(self.eixo_x, dados)
-            plt.show()
+            if legends is not None:
+                plt.plot(
+                    self.eixo_x,
+                    dados,
+                    color=legends["color"],
+                    label=legends["label"]
+                )
+            else:
+                plt.plot(
+                    self.eixo_x,
+                    dados
+                )
+            try:
+                plt.legend()
+            finally:
+                plt.show()
         else:
             i = 0
 
@@ -51,26 +65,38 @@ class Plots:
     def plots_arranjo(self, ag, dados):
         self.plotar(
             dados["curva"],
-            x="Frequency (GHz)",
+            legends={
+                "color": "#17a589",
+                "label": "Absorção da RFSS + Dielétrico - Referência"
+            },
+            x="Frequencia (GHz)",
             y=ag.otimizacao.upper() + "(dB)",
             xvline=ag.faixa_f_antena,
-            title="Melhor Arranjo, Fitness: {}".format(dados["fitness"])
+            title="Referência"
         )
 
         self.plotar(
             dados["s11"],
+            legends={
+                "color": "#17a589",
+                "label": "Reflexão da RFSS + Dielétrico"
+            },
             x="Frequency (GHz)",
             y="S11 (dB)",
             xvline=ag.faixa_f_antena,
-            title="Melhor Arranjo"
+            title="Solução"
         )
 
         self.plotar(
             dados["s12"],
+            legends={
+                "color": "#17a589",
+                "label": "Transmissão da RFSS + Dielétrico"
+            },
             x="Frequency (GHz)",
             y="S12 (dB)",
             xvline=ag.faixa_f_antena,
-            title="Melhor Arranjo"
+            title="Solução"
         )
 
         use_ground = ag.dados["UTILIZAR_GROUND"]
@@ -78,18 +104,26 @@ class Plots:
         if not use_ground:
             self.plotar(
                 dados["z_pass_band_r"],
+                legends={
+                    "color": "#17a589",
+                    "label": "Resistência da FSS Passa Banda"
+                },
                 x="Frequency (GHz)",
                 y="Re{Z_Pass-Band} (dB)",
                 xvline=ag.faixa_f_antena,
-                title="Melhor Arranjo"
+                title="Solução: Passa Faixa"
             )
 
             self.plotar(
                 dados["z_pass_band_i"],
+                legends={
+                    "color": "#17a589",
+                    "label": "Reatância da FSS Passa Banda"
+                },
                 x="Frequency (GHz)",
                 y="Im{Z_EQ} (dB)",
                 xvline=ag.faixa_f_antena,
-                title="Melhor Arranjo"
+                title="Solução: Passa Faixa"
             )
 
         metodo = ag.dados["METODO_FITNESS_ARRANJO"]
@@ -109,7 +143,7 @@ class Plots:
                 x="Frequency (GHz)",
                 y="A Normalizado",
                 xvline=ag.faixa_f_antena,
-                title="Normalizados",
+                title="Curvas Normalizadas",
                 many=True
             )
 
@@ -128,7 +162,7 @@ class Plots:
                 x="Frequency (GHz)",
                 y="A Normalizado",
                 xvline=ag.faixa_f_antena,
-                title="Normalizados",
+                title="Curvas Normalizadas",
                 many=True
             )
 
@@ -147,13 +181,17 @@ class Plots:
                 x="Frequency (GHz)",
                 y="A Normalizado",
                 xvline=ag.faixa_f_antena,
-                title="Normalizados",
+                title="Curvas Normalizadas",
                 many=True
             )
 
 
         self.plotar(
             dados["zfssr"],
+            legends={
+                "color": "#17a589",
+                "label": "Resistência da RFSS"
+            },
             x="Frequency (GHz)",
             y="Re{Z_RFSS} (Ohm)",
             xvline=ag.faixa_f_antena,
@@ -162,6 +200,10 @@ class Plots:
 
         self.plotar(
             dados["zsubstrato"],
+            legends={
+                "color": "#17a589",
+                "label": "Módulo da Impedância do Substrato"
+            },
             x="Frequency (GHz)",
             y="Zd (Ohm)",
             xvline=ag.faixa_f_antena,
@@ -184,7 +226,7 @@ class Plots:
             y="I{ZFSS} e Zd (Ohm)",
             xvline=ag.faixa_f_antena,
             ylim=[-1000, 1000],
-            title="Ressonância e Salisbury",
+            title="Ressonância e Salisbury's Screen",
             many=True
         )
 
@@ -194,8 +236,8 @@ class Plots:
                 dados["zri"]
             ],
             legends=[
-                {"color": "#17a589", "label": "Re{RFSS + Dielétrico}"},
-                {"color": "#f4d03f", "label": "Im{RFSS + Dielétrico}"}
+                {"color": "#17a589", "label": "Resistência da RFSS + Dielétrico"},
+                {"color": "#f4d03f", "label": "Reatância da RFSS + Dielétrico"}
             ],
             x="Frequency (GHz)",
             y="Zr (Ohm)",

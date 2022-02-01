@@ -27,7 +27,7 @@ class ReadFromCST:
 
         denominador = (1 - x[3] * y[0])
 
-        s11 = - x[0] - (x[2] * x[1] * y[0]) / denominador
+        s11 = + x[0] + (x[2] * x[1] * y[0]) / denominador
         s12 = (x[1] * y[1]) / denominador
         s21 = (x[2] * y[2]) / denominador
         s22 = y[3] + (y[2] * y[1] * x[3]) / denominador
@@ -82,7 +82,8 @@ class ReadFromCST:
 
         #cascade = self.s_cascade(abs(pass_band_s), abs(dielectric_s))
         #cascade = self.s_cascade(abs(cascade), abs(resistive_s))
-        print(cascade)
+        #print(cascade)
+
         rdb = 10 * np.log10(np.abs(cascade[0]))
         tdb = 10 * np.log10(np.abs(cascade[1]))
         adb = -10 * np.log10(np.abs(cascade[0]) + np.abs(cascade[1]))

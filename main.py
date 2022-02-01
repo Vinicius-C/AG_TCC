@@ -29,7 +29,7 @@ class Main:
 
         manager = AGManager()
         #espira_quadrada_otima = manager.otimizar_espira_quadrada()
-        espira_quadrada_otima = AGUtil().get_passa_faixa(espira_quadrada_otima)
+        #espira_quadrada_otima = AGUtil().get_passa_faixa(espira_quadrada_otima)
 
         print("Passa-Faixa Finalizada")
         self.show_time()
@@ -55,11 +55,11 @@ class Main:
             u=1.2566e-06,
             l=0.0045714363307545105
         )
-        manager.plotar_arranjo(fss_artigo, espira_quadrada_otima)
-        manager.plotar_arranjo(fss, espira_quadrada_otima)
+        #manager.plotar_arranjo(fss_artigo, espira_quadrada_otima)
+        #manager.plotar_arranjo(fss, espira_quadrada_otima)
         #manager.plotar_espira(espira_quadrada_otima)
 
-        #manager.otimizar_arranjo(espira_quadrada_otima)
+        manager.otimizar_arranjo(espira_quadrada_otima)
 
         print("Arranjo Finalizado")
         self.show_time()

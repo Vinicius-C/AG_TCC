@@ -59,7 +59,7 @@ class Individuo:
             c += 1
             mutar = np.random.normal(1, taxa_mutacao)
             valor = variavel * mutar
-            if c >= 10:
+            if c >= 5:
                 if limite_inf <= valor:
                     return limite_sup
                 else:

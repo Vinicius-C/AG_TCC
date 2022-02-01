@@ -82,7 +82,7 @@ class AG(AGUtil):
         # Para cada indivíduo verificar se ele se encaixa na lista de selecionados (Quando esse for menor que algum
         # dos n indivíduos já selecionados, encaixar este indivíduo na posição do que ele é menor)
         for j in range(self.tamanho_geracao):
-            #print(str(self.geracao[j]))
+            #print(str(funcao_fitness(self.geracao[j])["fitness"]))
             fitness_j = funcao_fitness(self.geracao[j])["fitness"]
             for k in range(self.n_selecionados):
                 if fitness_j < fitness_selecionados[k]:

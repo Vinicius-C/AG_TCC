@@ -68,10 +68,14 @@ class AGManager:
         show = Plots(ag=ag)
         show.plotar(
             resultado["curva"],
-            x="Frequency (GHz)",
+            legends={
+                "color": "#17a589",
+                "label": "Reflexão da FSS Passa Faixa"
+            },
+            x="Frequencia (GHz)",
             y=ag.otimizacao.upper() + "(dB)",
             xvline=ag.faixa_f_antena,
-            title="S"
+            title="S11"
         )
 
         curva_referencia = {
@@ -82,17 +86,17 @@ class AGManager:
 
         show.plotar(
             curva_referencia[ag.otimizacao],
-            x="Frequency (GHz)",
+            x="Frequencia (GHz)",
             y=ag.otimizacao.upper() + "[Curva Ideal]",
             xvline=ag.faixa_f_antena,
-            title="S"
+            title="S11"
         )
         show.plotar(
             [
                 resultado["z_pass_band_r"],
                 resultado["z_pass_band_i"]
             ],
-            x="Frequency (GHz)",
+            x="Frequencia (GHz)",
             y="Z (Ohms)",
             xvline=ag.faixa_f_antena,
             title="Impedância da FSS",
@@ -145,7 +149,11 @@ class AGManager:
                         x["curva"],
                         resultado_artigo["curva"]
                     ],
-                    x="Frequency (GHz)",
+                    legends=[
+                        {"color": "#17a589", "label": "Curva de Absorção Encontrada"},
+                        {"color": "#f4d03f", "label": "Curva A Referência"}
+                    ],
+                    x="Frequencia (GHz)",
                     y=ag.otimizacao.upper() + "(dB) [Novo Fitness]",
                     xvline=ag.faixa_f_antena,
                     title=title.format(

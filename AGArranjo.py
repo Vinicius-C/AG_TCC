@@ -235,6 +235,7 @@ class AGArranjo(AG):
             diferenca = curva_normalizada - self.curva_referencia_a
             diferenca = np.multiply(diferenca, self.pesos)
             x = abs(np.max(curva))
+            x = x if x < 25 else 25
             f = np.sum(np.square(diferenca)) * (1 / x)
             g = abs(
                 espira_quadrada.calculo_impedancia(
